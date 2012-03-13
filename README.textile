@@ -1,0 +1,13 @@
+h1. common utils
+
+h2. What?
+
+This project contains some of the most commonly used elements used in our projects:
+* File 
+* Ftp 
+* Image
+* Encryption
+
+and other elements is key in this project. 
+
+"Old google code page":http://code.google.com/p/common-utils-suiveg/
