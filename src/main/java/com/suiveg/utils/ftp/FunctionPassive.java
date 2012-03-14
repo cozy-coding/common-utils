@@ -1,5 +1,8 @@
 package com.suiveg.utils.ftp;
 
+import com.suiveg.utils.ftp.model.DataConnection;
+import com.suiveg.utils.ftp.model.FTPConnection;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
@@ -7,21 +10,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FunctionPassive {
-    private final FTP FTP;
 
-    public FunctionPassive(FTP FTP) {
-        this.FTP = FTP;
-    }
-
-    synchronized void passive(String transferMode) throws IOException {
-        FTP.getSender().send(Consts.PASV);
-        while (FTP.getReader().hasMoreLines()) {
-            FTP.setServerResponse(FTP.getReader().readLine());
-            FTP.debug(FTP.getServerResponse());
+    synchronized DataConnection passive(String transferMode, FTPConnection ftpConnection) throws IOException {
+        ftpConnection.getSender().send(Consts.PASV);
+        while (ftpConnection.getReader().hasMoreLines()) {
+            ftpConnection.setServerResponse(ftpConnection.getReader().readLine());
+            FTP.debug(ftpConnection.getServerResponse());
         }
         int[] pasvResponse = new int[7];
         Pattern p = Pattern.compile("-?\\d+");
-        Matcher m = p.matcher(FTP.getServerResponse());
+        Matcher m = p.matcher(ftpConnection.getServerResponse());
         int i = 0;
         while (m.find()) {
             String s = m.group();
@@ -32,12 +30,15 @@ public class FunctionPassive {
         int dPort = (pasvResponse[5] * 256) + pasvResponse[6];
         // Open data connection
         FTP.debug("Opening dataconnection on port " + dPort);
-        FTP.setDataConnection(SocketChannel.open());
-        FTP.getDataConnection().connect(new InetSocketAddress(FTP.getAddress(), dPort));
+        DataConnection dc = new DataConnection();
+        dc.setDataConnection(SocketChannel.open());
+        dc.getDataConnection().connect(new InetSocketAddress(ftpConnection.getAddress(), dPort));
         if ("get".equals(transferMode)) {
-            FTP.setDataReader(new Reader(FTP.getDataConnection()));
+            dc.setDataReader(new Reader(dc.getDataConnection()));
         } else if ("put".equals(transferMode)) {
-            FTP.setDataSender(new Sender(FTP.getDataConnection()));
+            dc.setDataSender(new Sender(dc.getDataConnection()));
         }
+
+        return dc;
     }
 }

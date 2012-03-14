@@ -1,48 +1,34 @@
 package com.suiveg.utils.ftp;
 
+import com.suiveg.utils.ftp.model.DataConnection;
+import com.suiveg.utils.ftp.model.FTPConnection;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class FunctionGet {
-    private final FTP FTP;
 
-    public FunctionGet(FTP FTP) {
-        this.FTP = FTP;
-    }
-
-    public synchronized void getFile(String fileName) throws IOException {
-        boolean fileFound = true;
+    public synchronized void getFile(String fileName, FTPConnection ftpConnection, DataConnection dataConnection) throws IOException {
+      boolean fileFound = true;
         // Set passive mode to get a data connection
-        FTP.getFunctionPassive().passive("get");
+        //FTP.getFunctionPassive().passive("get");
+
         // Send retrieve command and read response from server
-        FTP.getSender().send(Consts.RETR + fileName);
-        while (FTP.getReader().hasMoreLines()) {
-            FTP.setServerResponse(FTP.getReader().readLine());
-            FTP.debug(FTP.getServerResponse());
-            if (FTP.getServerResponse().startsWith("550")) {
+        ftpConnection.getSender().send(Consts.RETR + fileName);
+        while (ftpConnection.getReader().hasMoreLines()) {
+            ftpConnection.setServerResponse(ftpConnection.getReader().readLine());
+            FTP.debug(ftpConnection.getServerResponse());
+            if (ftpConnection.getServerResponse().startsWith("550")) {
                 fileFound = false;
             }
         }
 
         if (fileFound) {
-            FTP.getDataReader().getFile(fileName, FTP.getLocalDirectory());
+            dataConnection.getDataReader().getFile(fileName, ftpConnection.getLocalDirectory());
         }
-        while (FTP.getReader().hasMoreLines()) {
-            FTP.setServerResponse(FTP.getReader().readLine());
-            FTP.debug(FTP.getServerResponse());
-        }
-    }
-
-    /**
-     * getFiles
-     * This method gets all files in a folder
-     */
-    public synchronized void getFiles() throws IOException {
-        if (FTP.isConnected()) {
-            ArrayList<String> fileList = FTP.getFileList();
-            for (String file : fileList) {
-                getFile(file);
-            }
+        while (ftpConnection.getReader().hasMoreLines()) {
+            ftpConnection.setServerResponse(ftpConnection.getReader().readLine());
+            FTP.debug(ftpConnection.getServerResponse());
         }
     }
 }

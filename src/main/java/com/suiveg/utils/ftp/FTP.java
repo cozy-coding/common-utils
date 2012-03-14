@@ -2,6 +2,8 @@ package com.suiveg.utils.ftp;
 
 
 import com.suiveg.utils.file.FileUtils;
+import com.suiveg.utils.ftp.model.DataConnection;
+import com.suiveg.utils.ftp.model.FTPConnection;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,25 +24,10 @@ import java.util.regex.Pattern;
  */
 
 public class FTP extends FileUtils {
-    private SocketChannel client;
-    private SocketChannel dataConnection;
-    private String serverResponse;
-    private Sender sender;
-    private Sender dataSender;
-    private Reader reader;
-    private Reader dataReader;
-    private String address;
-    private int port;
-    private String username;
-    private String password;
-    protected boolean debug = false;
-    private File localDirectory;
-    private final FunctionConnect functionConnect = new FunctionConnect(this);
-    private final FunctionPassive functionPassive = new FunctionPassive(this);
-    private final FunctionDisconnect functionDisconnect = new FunctionDisconnect(this);
-    private final FunctionGet functionGet = new FunctionGet(this);
-    private final FunctionPut functionPut = new FunctionPut(this);
 
+    private FTPConnection ftpConnection;
+    private ConnectionManager connectionManager;
+    protected static Debugger debugger;
     /**
      * Constructor
      * @param address server address
@@ -49,10 +36,8 @@ public class FTP extends FileUtils {
      * @param password the password
      */
     public FTP(String address, int port, String username, String password) {
-        this.address = address;
-        this.port = port;
-        this.username = username;
-        this.password = password;
+        this.ftpConnection = new FTPConnection(address,port,username,password);
+        debugger = new Debugger();
     }
 
     /**
@@ -62,7 +47,8 @@ public class FTP extends FileUtils {
      * @throws java.io.IOException IO Exception
      */
     public synchronized boolean connect() throws IOException {
-        return functionConnect.connect();
+        connectionManager = new ConnectionManager();
+        return connectionManager.connect(this.ftpConnection);
     }
 
     /**
@@ -72,7 +58,9 @@ public class FTP extends FileUtils {
      * @throws java.io.IOException IO Exception
      */
     public synchronized void getFile(String fileName) throws IOException {
-        functionGet.getFile(fileName);
+        FunctionGet get = new FunctionGet();
+        DataConnection dataConnection = passive("get");
+        get.getFile(fileName, this.ftpConnection, dataConnection);
     }
     /**
      * getFiles
@@ -80,7 +68,10 @@ public class FTP extends FileUtils {
      * @throws java.io.IOException IO Exception
      */
     public synchronized void getFiles() throws IOException {
-        functionGet.getFiles();
+        ArrayList<String> fileList = getFileList();
+        for (String file : fileList) {
+            getFile(file);
+        }
     }
 
     /**
@@ -90,7 +81,9 @@ public class FTP extends FileUtils {
      * @throws java.io.IOException IO Exception
      */
     public synchronized void putFile(String fileName) throws IOException {
-        functionPut.putFile(fileName);
+        FunctionPut put = new FunctionPut();
+        DataConnection dataConnection = passive("put");
+        put.putFile(fileName, this.ftpConnection, dataConnection);
     }
 
     /**
@@ -100,27 +93,30 @@ public class FTP extends FileUtils {
      * @param transferMode put or get, this handles which way the data transfer is going
      * @throws java.io.IOException IO Exception
      */
-    private synchronized void passive(String transferMode) throws IOException {
-        functionPassive.passive(transferMode);
+    private synchronized DataConnection passive(String transferMode) throws IOException {
+        FunctionPassive functionPassive = new FunctionPassive();
+        DataConnection dataConnection = functionPassive.passive(transferMode, this.ftpConnection);
+        return dataConnection;
     }
 
     protected synchronized ArrayList<String> list() throws IOException {
         ArrayList<String> listResponse = new ArrayList<String>();
-        functionPassive.passive("get");
-        sender.send(Consts.LIST);
-        while (reader.hasMoreLines()) {
-            serverResponse = reader.readLine();
-            debug(serverResponse);
+        DataConnection dc = passive("get");
+        ftpConnection.getSender().send(Consts.LIST);
+        while (ftpConnection.getReader().hasMoreLines()) {
+            ftpConnection.setServerResponse(ftpConnection.getReader().readLine());
+            debugger.debug(ftpConnection.getServerResponse());
         }
 
-        while (dataReader.hasMoreLines()) {            
-            serverResponse = dataReader.readLine();
-            listResponse.add(serverResponse);
-            debug(serverResponse);
+        while (dc.getDataReader().hasMoreLines()) {
+            //serverResponse = dc.getDataReader().readLine();
+            ftpConnection.setServerResponse(dc.getDataReader().readLine());
+            listResponse.add(ftpConnection.getServerResponse());
+            debugger.debug(ftpConnection.getServerResponse());
         }
-        while (reader.hasMoreLines()) {
-            serverResponse = reader.readLine();
-            debug(serverResponse);
+        while (ftpConnection.getReader().hasMoreLines()) {
+            ftpConnection.setServerResponse(ftpConnection.getReader().readLine());
+            debugger.debug(ftpConnection.getServerResponse());
         }
         return listResponse;
     }
@@ -165,26 +161,26 @@ public class FTP extends FileUtils {
 
     public synchronized boolean changeRemoteDirectory(String directory) throws IOException {
         boolean operationStatus = true;
-        sender.send(Consts.CWD+directory);
-        while (reader.hasMoreLines()) {
-                serverResponse = reader.readLine();
-                if(serverResponse.startsWith("550")) {
+        ftpConnection.getSender().send(Consts.CWD + directory);
+        while (ftpConnection.getReader().hasMoreLines()) {
+                ftpConnection.setServerResponse(ftpConnection.getReader().readLine());
+                if(ftpConnection.getServerResponse().startsWith("550")) {
                     operationStatus = false;
                 }
-                debug(serverResponse);
+            debugger.debug(ftpConnection.getServerResponse());
         }
         return operationStatus;
     }
 
     public synchronized String printWorkingDirectory() throws IOException {
         String pwd = "";
-        sender.send(Consts.PWD);
-        while (reader.hasMoreLines()) {
-                serverResponse = reader.readLine();
-                debug(serverResponse);
-                if (serverResponse.startsWith("257")) {
+        ftpConnection.getSender().send(Consts.PWD);
+        while (ftpConnection.getReader().hasMoreLines()) {
+            ftpConnection.setServerResponse(ftpConnection.getReader().readLine());
+            debugger.debug(ftpConnection.getServerResponse());
+                if (ftpConnection.getServerResponse().startsWith("257")) {
                     Pattern filePathPattern = Pattern.compile("\"([a-zA-Z0-9_.-/]+)+?\"");
-                    Matcher filePathMatcher = filePathPattern.matcher(serverResponse);
+                    Matcher filePathMatcher = filePathPattern.matcher(ftpConnection.getServerResponse());
                     if (filePathMatcher.find()) {
                         pwd = filePathMatcher.group().replaceAll("\"","");
                     }
@@ -195,7 +191,7 @@ public class FTP extends FileUtils {
     
     public synchronized void setLocalDirectory(File directory) throws IOException {
         if (directory.exists() && directory.isDirectory()) {
-            this.localDirectory = directory;
+            this.ftpConnection.setLocalDirectory(directory);
         } else {
             throw new IOException(directory+" don't exist, or is not a directory");
         }
@@ -207,7 +203,7 @@ public class FTP extends FileUtils {
      * @throws java.io.IOException IO Exception
      */
     public synchronized void disconnect() throws IOException {
-             functionDisconnect.disconnect();
+        connectionManager.disconnect(this.ftpConnection);
     }
 
     /**
@@ -215,7 +211,7 @@ public class FTP extends FileUtils {
      * @return True if connected. False if there is no connection
      */
     public synchronized boolean isConnected() {
-        return client.isConnected();
+        return ftpConnection.getClient().isConnected();
     }
 
     /**
@@ -223,11 +219,8 @@ public class FTP extends FileUtils {
      * Method used while debugging. Prints out all server responses to System.out
      * @param textToPrint the text to write to System.out
      */
-    protected void debug(String textToPrint) {
-        // Set to false when you don't want debugging in console
-        if (debug) {
-            System.out.println(textToPrint);
-        }
+    protected static void debug(String textToPrint) {
+        debugger.debug(textToPrint);
     }
 
     /**
@@ -235,92 +228,7 @@ public class FTP extends FileUtils {
      * @param debugMode true if you want to output debug-info
      */
     protected void setDebuggingMode(boolean debugMode) {
-        this.debug  = debugMode;
+        debugger.setDebug(debugMode);
     }
 
-    /*
-     *
-     * Getters and setters
-     *
-     */
-
-    protected String getPassword() {
-        return password;
-    }
-
-    public File getLocalDirectory() {
-        return localDirectory;
-    }
-
-    protected String getServerResponse() {
-        return serverResponse;
-    }
-
-    protected Reader getReader() {
-        return reader;
-    }
-
-    protected SocketChannel getClient() {
-        return client;
-    }
-
-    protected int getPort() {
-        return port;
-    }
-
-    protected Sender getSender() {
-        return sender;
-    }
-
-    protected String getAddress() {
-        return address;
-    }
-
-    protected String getUsername() {
-        return username;
-    }
-
-    protected void setServerResponse(String serverResponse) {
-        this.serverResponse = serverResponse;
-    }
-
-    protected void setReader(Reader reader) {
-        this.reader = reader;
-    }
-
-    protected void setClient(SocketChannel client) {
-        this.client = client;
-    }
-
-    protected void setSender(Sender sender) {
-        this.sender = sender;
-    }
-
-    protected Sender getDataSender() {
-        return dataSender;
-    }
-
-    protected Reader getDataReader() {
-        return dataReader;
-    }
-
-    protected SocketChannel getDataConnection() {
-        return dataConnection;
-    }
-
-    protected void setDataSender(Sender dataSender) {
-        this.dataSender = dataSender;
-    }
-
-    protected void setDataReader(Reader dataReader) {
-        this.dataReader = dataReader;
-    }
-
-    protected void setDataConnection(SocketChannel dataConnection) {
-        this.dataConnection = dataConnection;
-    }
-
-    protected FunctionPassive getFunctionPassive() {
-        return functionPassive;
-    }
 }
