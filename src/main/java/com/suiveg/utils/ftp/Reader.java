@@ -68,7 +68,6 @@ public class Reader {
         boolean append = true;
         ByteBuffer buf = ByteBuffer.allocate(Consts.bufferSize);
         File file = new File(localDirectory,fileName);
-        System.out.println(file.getCanonicalPath());
         deleteIfFileExists(file);
         FileChannel writeChannel = new FileOutputStream(file, append).getChannel();
         while (bytesRead > 0) {
