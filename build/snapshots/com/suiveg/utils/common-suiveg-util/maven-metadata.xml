@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.suiveg.utils</groupId>
+  <artifactId>common-suiveg-util</artifactId>
+  <versioning>
+    <versions>
+      <version>0.1-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20120315182145</lastUpdated>
+  </versioning>
+</metadata>
