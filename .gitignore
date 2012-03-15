@@ -1,2 +1,13 @@
+## Folders ##
+# ignoring normal/default folders like target, idea and such..
+target/*
 
-/trunk/target
+## Extensions ##
+# Ignores the project-specifics. Will not add these, as its up to the developer to take care of such files.
+*.iws
+*.ipr
+*.iml
+
+## User Specifics ##
+*.user
+*.suo
