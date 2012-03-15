@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <name>common-suiveg-util</name>
     <groupId>com.suiveg.utils</groupId>
     <artifactId>common-suiveg-util</artifactId>
-    <version>SNAPSHOT-0.1</version>
+    <version>0.1</version>
     <packaging>jar</packaging>
 
     <description>Common Utilities used by Marius and Vegard - distributed edition</description>
-    <url>http://code.google.com/p/common-utils-suiveg/</url>
+    <url>https://github.com/suiveg/common-utils</url>
 
+    <scm>
+        <connection>scm:git:git@github.com:vegaasen/common-utils.git</connection>
+        <url>scm:git:git@github.com:vegaasen/common-utils.git</url>
+        <developerConnection>scm:git:git@github.com:vegaasen/common-utils.git</developerConnection>
+    </scm>
 
     <repositories>
         <repository>
@@ -34,13 +37,13 @@
     <distributionManagement>
         <repository>
             <uniqueVersion>false</uniqueVersion>
-            <id>codegoogle</id>
-            <url>dav:https://common-utils-suiveg.googlecode.com/git/maven/2</url>
+            <id>main-repo</id>
+            <url>https://github.com/vegaasen/common-utils/build/</url>
         </repository>
         <snapshotRepository>
-            <id>googlecode</id>
             <uniqueVersion>false</uniqueVersion>
-            <url></url>
+            <id>snapshot-repo</id>
+            <url>https://github.com/vegaasen/common-utils/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -132,13 +135,6 @@
 
     <build>
         <finalName>${project.finalName}</finalName>
-        <extensions>
-              <extension>
-                      <groupId>org.apache.maven.wagon</groupId>
-                      <artifactId>wagon-webdav</artifactId>
-                      <version>1.0-beta-2</version>
-              </extension>
-      </extensions>
         <plugins>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -201,7 +197,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.1</version>
+                <version>2.2.2</version>
                 <configuration>
                     <mavenExecutorId>forked-path</mavenExecutorId>
                     <useReleaseProfile>false</useReleaseProfile>
