@@ -21,6 +21,8 @@ import java.util.List;
  *
  * This is constantly under development.
  *
+ * Note: Not Java 1.7 / Java 7 certified. An overloading class for using NIO will be written on the side
+ *
  *
  * @author <a href="mailto:vegaasen@gmail.com">Vegard Aasen</a>
  * @author <a href="mailto:marius.kristensen@gmail.com">Marius Kristensen</a>
@@ -46,6 +48,15 @@ public class FileUtils extends AbstractUtil {
         super();
     }
 
+    /**
+     * Get the filename of a file
+     *
+     * @param file File to investigate
+     * @param omitFileExtension if set to false, shows the extension and vice versa
+     * @return fileName
+     * @throws NullPointerException _
+     * @throws IOException _
+     */
     public static String getFileName(final File file, final boolean omitFileExtension)
             throws NullPointerException, IOException{
         if(verifyNotNull(file)) {
@@ -58,6 +69,14 @@ public class FileUtils extends AbstractUtil {
         throw new NullPointerException(String.format(E_OBJECT_WAS_NULL));
     }
 
+    /**
+     * Get filename based on a path/filename
+     *
+     * @param fileName path/filname
+     * @param omitFileExtension if set to false, shows the extension and vice versa
+     * @return
+     * @throws NullPointerException
+     */
     public static String getFileName(final String fileName, final boolean omitFileExtension)
             throws NullPointerException {
         if(verifyNotNull(fileName)) {
@@ -66,6 +85,14 @@ public class FileUtils extends AbstractUtil {
         throw new NullPointerException(String.format(E_OBJECT_WAS_NULL));
     }
 
+    /**
+     * Returns a file as FileOutputStream
+     *
+     * @param file the file in question
+     * @return FileOutputStream
+     * @throws IOException _
+     * @throws NullPointerException _
+     */
     public static FileOutputStream getFileOutputStream(final File file)
             throws IOException,
             NullPointerException {
@@ -90,6 +117,14 @@ public class FileUtils extends AbstractUtil {
         throw new NullPointerException(String.format(E_OBJECT_WAS_NULL));
     }
 
+    /**
+     * Returns a file as FileInputStream
+     *
+     * @param file the file in question
+     * @return FileInputStream
+     * @throws IOException _
+     * @throws NullPointerException _
+     */
     public static FileInputStream getFileInputStream(final File file)
             throws IOException,
             NullPointerException {
@@ -109,6 +144,15 @@ public class FileUtils extends AbstractUtil {
         throw new NullPointerException(String.format(E_OBJECT_WAS_NULL));
     }
 
+    /**
+     * Get the size of a file as Human Readable Size
+     *
+     * @param fileSize filesize
+     * @param fileSizeType the conversion-size
+     * @param omitFormatType if to omit the formatType (e.g KB, MB, GB etc)
+     * @return the size
+     * @throws NullPointerException
+     */
     public static String getHumanReadableFileSize(final Long fileSize,
                                                   final FileSizeType fileSizeType,
                                                   final boolean omitFormatType)
@@ -135,6 +179,13 @@ public class FileUtils extends AbstractUtil {
         throw new NullPointerException("The size provided was null");
     }
 
+    /**
+     * Perform a UNIX "touch" on a file to set last modified
+     *
+     * @param file the file in question
+     * @throws NullPointerException _
+     * @throws IOException _
+     */
     public static void setLastModifiedForFile(final File file)
             throws NullPointerException, IOException {
         if (verifyNotNull(file)) {
@@ -153,6 +204,15 @@ public class FileUtils extends AbstractUtil {
         throw new NullPointerException(E_OBJECT_WAS_NULL);
     }
 
+    /**
+     * Read a file to a string
+     *
+     * @param file _
+     * @param encoding the encoding type
+     * @return _
+     * @throws IOException _
+     * @throws NoSuchObjectException _
+     */
     public static String readFileToString(final File file, final FileEncoding encoding)
             throws IOException,
             NoSuchObjectException {
@@ -171,6 +231,13 @@ public class FileUtils extends AbstractUtil {
         throw new NoSuchObjectException(E_OBJECT_WAS_NULL);
     }
 
+    /**
+     * Read a file to a byte array
+     *
+     * @param file _
+     * @return byte array containing the contents of a file
+     * @throws FileNotFoundException _
+     */
     public static byte[] readFileToByteArray(final File file)
             throws FileNotFoundException {
         if (verifyNotNull(file)) {
@@ -199,6 +266,14 @@ public class FileUtils extends AbstractUtil {
         throw new FileNotFoundException(E_OBJECT_WAS_NULL);
     }
 
+    /**
+     * Read size of a whole directory
+     *
+     * @param directory _
+     * @param fileSizeType the file size type (e.g KB, MB, GB etc)
+     * @return size
+     * @throws IllegalArgumentException
+     */
     public static long readDirectoryContentSize(final File directory, final FileSizeType fileSizeType)
             throws IllegalArgumentException {
         if (verifyNotNull(directory)) {
@@ -224,6 +299,14 @@ public class FileUtils extends AbstractUtil {
         throw new IllegalArgumentException(E_OBJECT_WAS_NULL);
     }
 
+    /**
+     * Compare a file to a date (is newer than)
+     *
+     * @param file _
+     * @param date the date
+     * @return true/false
+     * @throws IllegalArgumentException _
+     */
     public static boolean isFileNewerThan(final File file, final Date date)
             throws IllegalArgumentException {
         if (verifyNotNull(file)) {
@@ -235,6 +318,12 @@ public class FileUtils extends AbstractUtil {
         throw new IllegalArgumentException(E_OBJECT_WAS_NULL);
     }
 
+    /**
+     * Compare a file to a long (is newer than)
+     * @param file _
+     * @param time timeInLong
+     * @return true/false
+     */
     public static boolean isFileNewerThan(final File file, final Long time) {
         if (verifyNotNull(file)) {
             if (time != null && time > 0) {
@@ -245,6 +334,13 @@ public class FileUtils extends AbstractUtil {
         throw new IllegalArgumentException(E_OBJECT_WAS_NULL);
     }
 
+    /**
+     * Create a folder on a location
+     *
+     * @param folder the new folder
+     * @return true/false
+     * @throws Exception _
+     */
     public static boolean createFolder(final File folder) throws Exception {
         if(verifyNotNull(folder)) {
             if(folder.exists() && !folder.isDirectory()) {
@@ -256,6 +352,13 @@ public class FileUtils extends AbstractUtil {
         throw new NullPointerException(E_OBJECT_WAS_NULL);
     }
 
+    /**
+     * Perform a file-delete to a file, if exists
+     *
+     * @param file the file to delete
+     * @return true/false
+     * @throws NullPointerException _
+     */
     public static boolean deleteIfFileExists(final File file)
             throws NullPointerException {
         if(verifyNotNull(file)) {
@@ -281,10 +384,16 @@ public class FileUtils extends AbstractUtil {
         }
     }
 
+    /**
+     * FILE-SIZE-TYPES
+     */
     public enum FileSizeType {
         BYTE, KILOBYTE, MEGABYTE, GIGABYTE, TERABYTE
     }
 
+    /**
+     * File-Encodings
+     */
     public enum FileEncoding {
         DEFAULT("utf-8"),
         UTF_8("utf-8"),

@@ -5,7 +5,7 @@
     <name>common-suiveg-util</name>
     <groupId>com.suiveg.utils</groupId>
     <artifactId>common-suiveg-util</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.1</version>
     <packaging>jar</packaging>
 
     <description>Common Utilities used by Marius and Vegard - distributed edition</description>
@@ -54,10 +54,9 @@
             <id>vegaasen</id>
             <roles>
                 <role>Developer</role>
-                <role>Leader</role>
             </roles>
             <timezone>no_NO</timezone>
-            <organization>Aasens Web Snekkeri</organization>
+            <organization>Aasen's Snikkerverksted</organization>
             <url>http://www.vegaasen.com/</url>
         </developer>
         <developer>
@@ -65,7 +64,6 @@
             <email>marius.kristensen@gmail.com</email>
             <roles>
                 <role>Developer</role>
-                <role>Leader</role>
             </roles>
             <timezone>no_NO</timezone>
             <organization>Kristensen Web Consulting</organization>
@@ -77,7 +75,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
+            <version>4.10</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -305,9 +303,8 @@
         <maven-source.version>2.1.2</maven-source.version>
         <maven-jar.version>2.3.1</maven-jar.version>
         <maven-javadoc.version>2.8.1</maven-javadoc.version>
-        <powermock.version>1.4.12</powermock.version>
+        <powermock.version>1.4.11</powermock.version>
         <mockito.version>1.9.0</mockito.version>
-        <junit.version>4.10</junit.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.finalName>${project.name}-${maven.build.timestamp}-${project.version}</project.finalName>
     </properties>

@@ -1,7 +1,7 @@
 package com.suiveg.utils.image;
 
 import com.suiveg.utils.abs.AbstractUtil;
-import com.suiveg.utils.exception.NotImplementedException;
+import com.suiveg.utils.exceptions.NotImplementedException;
 import com.suiveg.utils.image.model.ImageElement;
 import com.suiveg.utils.image.model.MediaType;
 import org.apache.log4j.Logger;

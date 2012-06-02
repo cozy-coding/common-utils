@@ -29,6 +29,11 @@ public class EncryptionUtilsTest {
         //unset atm.. not using powermock or any of that "fancy stuff" as everything is statically called!
     }
 
+    @Test(enabled = true, alwaysRun = true, testName = "")
+    public void convertPasswordWithCrypt_allowedSalt() {
+        
+    }
+
     @Test(enabled = true, alwaysRun = true, testName = "MD5 Test")
     public void convertToDigest_provideMD5() {
         byte[] result = EncryptionUtils.convertToDigest(CONVERTED_STRING_THROUGH_MD5.getBytes(), EncryptionUtils.EncryptionType.MD_5);
