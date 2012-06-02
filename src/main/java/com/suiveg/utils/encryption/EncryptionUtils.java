@@ -1,6 +1,7 @@
 package com.suiveg.utils.encryption;
 
 import com.suiveg.utils.abs.AbstractUtil;
+import com.suiveg.utils.encryption.algorithms.Crypt;
 import org.apache.commons.lang.StringUtils;
 
 import java.security.MessageDigest;
@@ -16,8 +17,22 @@ import java.security.NoSuchAlgorithmException;
  */
 public class EncryptionUtils extends AbstractUtil {
 
-    public EncryptionUtils() {
-        //empty
+    private EncryptionUtils() {}
+
+    /**
+     * Generate a Crypt hashed string based on a salt and a string (usually a password)
+     * This can be used together with e.g generating a Apache HTTPD password for Authentication
+     *
+     * @param salt (optional) the salt ([aA-zZ][0-9]\.)
+     * @param string (required) the inputstring (usually a password)
+     * @return The hashed string
+     * @throws NullPointerException _
+     */
+    public static String generateCryptHashedString(final String salt, final String string) throws NullPointerException{
+        if(verifyNotNull(string)) {
+            return Crypt.cryptUsingStandardDES(salt, string);
+        }
+        throw new NullPointerException(E_OBJECT_WAS_NULL);
     }
 
     /**

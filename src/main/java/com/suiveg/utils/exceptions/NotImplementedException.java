@@ -1,4 +1,4 @@
-package com.suiveg.utils.exception;
+package com.suiveg.utils.exceptions;
 
 public class NotImplementedException extends Exception {
 
